@@ -7,8 +7,8 @@ if(!isset($sites[$code])) {
 
 $site= $sites[$code];
 $site_benchmark= benchmarkResults($code);
-$benchmarks= query_db_assoc("select * from `benchmark` where `site`=:site order by `created_at` desc limit 10", array('site' => $site['code']));
-$codes= query_db_assoc("select * from `code` where `site`=:site order by `created_at` desc limit 10", array('site' => $site['code']));
+$benchmarks= query_db_assoc("select * from `benchmark` where `site`=:site order by `created_at` desc limit 20", array('site' => $site['code']));
+$codes= query_db_assoc("select * from `code` where `site`=:site order by `created_at` desc limit 20", array('site' => $site['code']));
 ?>
 <?php include('tpl/header.php'); ?>
 

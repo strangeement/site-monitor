@@ -32,6 +32,7 @@ $(function() {
 		chart: {
 			renderTo: 'chart',
             type: 'line',
+            zoomType: 'x',
             marginRight: 250,
             marginBottom: 25
         },
