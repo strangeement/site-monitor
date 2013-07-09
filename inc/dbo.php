@@ -2,10 +2,11 @@
 function benchmarkResults($site) {
 	return query_db_object("select
 		(select avg(`median`) from `benchmark` where `site`=:site) as `median`,
+		(select avg(`median`) from `benchmark` where `site`=:site and `created_at`>unix_timestamp()-60*5) as `5m`,
 		(select avg(`median`) from `benchmark` where `site`=:site and `created_at`>unix_timestamp()-60*15) as `15m`,
-		(select avg(`median`) from `benchmark` where `site`=:site and `created_at`>unix_timestamp()-60*30) as `30m`,
-		(select avg(`median`) from `benchmark` where `site`=:site and `created_at`>unix_timestamp()-60*45) as `45m`,
-		(select avg(`median`) from `benchmark` where `site`=:site and `created_at`>unix_timestamp()-60*60) as `1h`,
+		(select avg(`median`) from `benchmark` where `site`=:site and `created_at`>unix_timestamp()-60*30 and `created_at`<unix_timestamp()-60*15) as `30m`,
+		(select avg(`median`) from `benchmark` where `site`=:site and `created_at`>unix_timestamp()-60*45 and `created_at`<unix_timestamp()-60*30) as `45m`,
+		(select avg(`median`) from `benchmark` where `site`=:site and `created_at`>unix_timestamp()-60*60 and `created_at`<unix_timestamp()-60*45) as `1h`,
 		(select avg(`median`) from `benchmark` where `site`=:site and `created_at`>unix_timestamp()-60*60*3 and `created_at`<unix_timestamp()-60*60) as `3h`,
 		(select avg(`median`) from `benchmark` where `site`=:site and `created_at`>unix_timestamp()-60*60*12 and `created_at`<unix_timestamp()-60*60*3) as `12h`,
 		(select avg(`median`) from `benchmark` where `site`=:site and `created_at`>unix_timestamp()-60*60*24*1 and `created_at`<unix_timestamp()-60*60*12) as `1d`,

@@ -38,5 +38,5 @@ if(isset($site['benchmark']) && !empty($site['benchmark'])) {
 if(is_cli) debug("Done.");
 else {
 	$redirect= isset($_GET['redirect']) ? urldecode($_GET['redirect']) : '/';
-	redirect("{$redirect}?success=" . urlencode("{$domain} successfully benchmarked in " . (time()-$begin) . " seconds with median {$median} ms"));
+	redirect("{$redirect}?success=" . urlencode("{$domain} successfully benchmarked in " . intval((time()-$begin)) . " seconds with median {$median} ms"));
 }

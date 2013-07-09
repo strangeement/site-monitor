@@ -4,9 +4,13 @@ return array(
 	'domain' => 'barrconstruction.com',
 	'benchmark' => array(
 		'home' => '/',
-		'green-approach' => '/green-approach'
+		'expertise' => '/expertise',
+		'restoration' => '/expertise/restoration',
+		'green-approach' => '/green-approach',
+		'about' => '/about-us',
+		'contact' => '/contact',
+		'resources' => '/resources',
 	),
 	'validate-html' => array(
-		'expertise' => '/expertise'
 	)
 );

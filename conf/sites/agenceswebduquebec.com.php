@@ -5,9 +5,10 @@ return array(
 	'ssl' => true,
 	'benchmark' => array(
 		'home' => '/',
-		'catalog' => '/agencies'
-	),
-	'validate-html' => array(
-		'explore' => '/agencies'
+		'agencies' => '/agencies',
+		'search' => '/agences/liste/tout/tout/experience-utilisateur',
+		'inscription' => '/inscription',
+		'problemes' => '/problemes',
+		'information' => '/pages/tarifs'
 	)
 );

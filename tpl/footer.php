@@ -16,6 +16,7 @@
     */ ?>
     
     <script src="/static/js/highcharts.js"></script>
+    <script src="/static/js/jquery.tablesorter.js"></script>
     
     <script src="/static/js/main.js"></script>
 	<?php /*

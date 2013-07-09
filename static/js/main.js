@@ -10,6 +10,8 @@ var qs = (function(a) {
     return b;
 })(window.location.search.substr(1).split(/[&;]/));
 
+var chart;
+
 $(function() {
 	$('a.external').click(function() {
 		window.open(this.href);
@@ -26,9 +28,9 @@ $(function() {
 	
 	replaceHistory();
 	
-//	google.setOnLoadCallback(drawChart);
-	$('#chart').highcharts({
-        chart: {
+	chart= new Highcharts.Chart({
+		chart: {
+			renderTo: 'chart',
             type: 'line',
             marginRight: 250,
             marginBottom: 25
@@ -40,7 +42,7 @@ $(function() {
             text: 'Median response time'
         },
         xAxis: {
-            categories: chart_points || ['-30d', '-7d', '-3d', '-1d', '-12h', '-3h', '-1h']
+            categories: chart_points || ['-30d', '-7d', '-3d', '-1d', '-12h', '-3h', '-1h', '-45m', '-30m', '-15m', '-5m']
         },
         yAxis: {
             title: {
@@ -50,7 +52,8 @@ $(function() {
                 value: 0,
                 width: 12,
                 color: '#808080'
-            }]
+            }],
+            min: 0
         },
         tooltip: {
             valueSuffix: 'ms'
@@ -63,22 +66,24 @@ $(function() {
         },
         series: chart_series
     });
+    
+    $('.tablesorter').tablesorter(); 
+	
+//	drawChart(chart_series);
+//    setInterval(function() {
+//    	$.get('/chart-data', function(r) {
+//    		console.log(r);
+//    		drawChart(r);
+//    	});
+//    }, 15000);
 });
 
-//function drawChart() {
-//    var data = google.visualization.arrayToDataTable([
-//      ['Year', 'Sales', 'Expenses'],
-//      ['2004',  1000,      400],
-//      ['2005',  1170,      460],
-//      ['2006',  660,       1120],
-//      ['2007',  1030,      540]
-//    ]);
-//
-//    var options = {};
-//
-//    var chart = new google.visualization.LineChart(document.getElementById('chart'));
-//    chart.draw(data, options);
-//}
+function drawChart(series) {
+	for(var site_data in series) {
+//		console.log(site_data, series[site_data].data);
+		chart.series[site_data].setData(series[site_data].data);
+	}
+}
 
 function replaceHistory() {
 	var new_qs= [];

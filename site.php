@@ -21,12 +21,12 @@ $codes= query_db_assoc("select * from `code` where `site`=:site order by `create
 
 <div id="chart"></div>
 <script type="text/javascript">
-	chart_points= ['-120d', '-60d', '-30d', '-7d', '-3d', '-1d', '-12h', '-3h', '-1h', '-45m', '-30m', '-15m'];	
+	chart_points= ['-120d', '-60d', '-30d', '-7d', '-3d', '-1d', '-12h', '-3h', '-1h', '-45m', '-30m', '-15m', '-5m'];	
 
 	var chart_series= [
 	{
         name: '<?= $code ?>',
-        data: [<?= intval($site_benchmark['120d']) ?>, <?= intval($site_benchmark['60d']) ?>, <?= intval($site_benchmark['30d']) ?>, <?= intval($site_benchmark['7d']) ?>, <?= intval($site_benchmark['3d']) ?>, <?= intval($site_benchmark['1d']) ?>, <?= intval($site_benchmark['12h']) ?>, <?= intval($site_benchmark['3h']) ?>, <?= intval($site_benchmark['1h']) ?>, <?= intval($site_benchmark['45m']) ?>, <?= intval($site_benchmark['30m']) ?>, <?= intval($site_benchmark['15m']) ?>]
+        data: [<?= intval($site_benchmark['120d']) ?>, <?= intval($site_benchmark['60d']) ?>, <?= intval($site_benchmark['30d']) ?>, <?= intval($site_benchmark['7d']) ?>, <?= intval($site_benchmark['3d']) ?>, <?= intval($site_benchmark['1d']) ?>, <?= intval($site_benchmark['12h']) ?>, <?= intval($site_benchmark['3h']) ?>, <?= intval($site_benchmark['1h']) ?>, <?= intval($site_benchmark['45m']) ?>, <?= intval($site_benchmark['30m']) ?>, <?= intval($site_benchmark['15m']) ?>, <?= intval($site_benchmark['5m']) ?>]
     }
     ];
 </script>

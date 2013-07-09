@@ -23,7 +23,7 @@ $validation_errors= query_db_assoc("select * from `validation` where `found` > 0
 	?>
 	{
         name: '<?= $site['code'] ?>',
-        data: [<?= intval($site_benchmark['30d']) ?>, <?= intval($site_benchmark['7d']) ?>, <?= intval($site_benchmark['3d']) ?>, <?= intval($site_benchmark['1d']) ?>, <?= intval($site_benchmark['12h']) ?>, <?= intval($site_benchmark['3h']) ?>, <?= intval($site_benchmark['1h']) ?>, <?= intval($site_benchmark['45m']) ?>, <?= intval($site_benchmark['30m']) ?>, <?= intval($site_benchmark['15m']) ?>]
+        data: [<?= intval($site_benchmark['30d']) ?>, <?= intval($site_benchmark['7d']) ?>, <?= intval($site_benchmark['3d']) ?>, <?= intval($site_benchmark['1d']) ?>, <?= intval($site_benchmark['12h']) ?>, <?= intval($site_benchmark['3h']) ?>, <?= intval($site_benchmark['1h']) ?>, <?= intval($site_benchmark['45m']) ?>, <?= intval($site_benchmark['30m']) ?>, <?= intval($site_benchmark['15m']) ?>, <?= intval($site_benchmark['5m']) ?>]
     },
     <?php endforeach; ?>
     ];
@@ -31,12 +31,13 @@ $validation_errors= query_db_assoc("select * from `validation` where `found` > 0
 <br>
 
 <h2><?= count($sites) ?> sites</h2>
-<table class="table">
+<table class="table tablesorter">
+<thead>
 <tr>
 	<th>Site</th>
 	<th>Domain</th>
-	<th>Response code errors</th>
-	<th>HTML validation errors</th>
+	<th>Error codes</th>
+	<th>Validation errors</th>
 	<th>24h</th>
 	<th>3d</th>
 	<th>7d</th>
@@ -44,22 +45,25 @@ $validation_errors= query_db_assoc("select * from `validation` where `found` > 0
 	<th>Benchmark</th>
 	<th></th>
 </tr>
+</thead>
+<tbody>
 <?php foreach($sites as $site): ?>
 <tr>
 	<td><a href="/site/<?= $site['code'] ?>"><?= $site['code'] ?></a></td>
 	<td><?= $site['domain'] ?></td>
 	<td><?= query_db_value("select count(*) from `code` where `site`=:site and `code` <> 200", array('site' => $site['code'])) ?></td>
-	<td><?= query_db_value("select count(*) from `validation` where `site`=:site and `found` > 1 or `error` is not null", array('site' => $site['code'])) ?></td>
-	<td><?= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site and `created_at` > unix_timestamp()-60*60*24", array('site' => $site['code']))) ?>ms</td>
-	<td><?= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site and `created_at` > unix_timestamp()-60*60*24*3", array('site' => $site['code']))) ?>ms</td>
-	<td><?= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site and `created_at` > unix_timestamp()-60*60*24*7", array('site' => $site['code']))) ?>ms</td>
-	<td><?= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site and `created_at` > unix_timestamp()-60*60*24*30", array('site' => $site['code']))) ?>ms</td>
-	<td><?= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site", array('site' => $site['code']))) ?> ms</td>
+	<td><?= query_db_value("select `found` from `validation` where `site`=:site and `found` > 1 or `error` is not null order by `created_at` limit 1", array('site' => $site['code'])) ?></td>
+	<td><?= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site and `created_at` > unix_timestamp()-60*60*24", array('site' => $site['code']))) ?></td>
+	<td><?= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site and `created_at` > unix_timestamp()-60*60*24*3", array('site' => $site['code']))) ?></td>
+	<td><?= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site and `created_at` > unix_timestamp()-60*60*24*7", array('site' => $site['code']))) ?></td>
+	<td><?= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site and `created_at` > unix_timestamp()-60*60*24*30", array('site' => $site['code']))) ?></td>
+	<td><?= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site", array('site' => $site['code']))) ?></td>
 	<td>
 		<a href="/benchmark/<?= $site['code'] ?>?bust=<?= time() ?>">Benchmark</a>
 	</td>
 </tr>
 <?php endforeach; ?>
+</tbody>
 </table>
 <br>
 

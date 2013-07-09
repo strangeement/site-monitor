@@ -5,9 +5,18 @@ return array(
 	'ssl' => true,
 	'benchmark' => array(
 		'home' => '/',
-		'catalog' => '/catalog'
-	),
-	'validate-html' => array(
-		'explore' => '/explore'
+		'catalog' => '/catalog',
+		'explore' => '/explore',
+		'register' => '/register',
+		'photo' => '/photo/8832',
+		'contributors' => '/photographers',
+		'profile' => '/photographer/pjgon71',
+		'portfolio' => '/user/pjgon71/portfolio',
+		'cart' => 'https://$domain/members/cart',
+		'about' => '/about',
+		'contact' => '/contact',
+		'faq' => '/faq',
+		'join' => '/join',
+		'terms' => '/legal/terms'
 	)
 );
