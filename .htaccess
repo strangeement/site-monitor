@@ -1,7 +1,8 @@
 RewriteEngine On
 
 RewriteRule ^benchmark/(\w+)$ /benchmark.php?code=$1 [L,QSA]
-RewriteRule ^site/(\w+)$ /site.php?code=$1 [L,QSA]
+RewriteRule ^site/(\w+)(/(\w+))?$ /site.php?code=$1;timeframe=$3 [L,QSA]
+RewriteRule ^stats/(\w+)$ /stats.php?timeframe=$1 [L,QSA]
 
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f

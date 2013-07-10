@@ -43,7 +43,15 @@ $(function() {
             text: 'Median response time'
         },
         xAxis: {
-            categories: chart_points || ['-30d', '-7d', '-3d', '-1d', '-12h', '-3h', '-1h', '-45m', '-30m', '-15m', '-5m']
+            categories: chart_points || ['-30d', '-7d', '-3d', '-1d', '-12h', '-3h', '-1h', '-45m', '-30m', '-15m', '-5m'],
+            labels: {
+		        formatter: function() {
+		        	console.log(this.value);
+//		        	return this.value;
+		            return this.value.replace(/\d+-\d+-\d+\s/, '');
+		        }
+		    },
+//		    type: 'datetime'
         },
         yAxis: {
             title: {
@@ -65,6 +73,13 @@ $(function() {
             verticalAlign: 'top',
             borderWidth: 0
         },
+        plotOptions: {
+		    line: {
+		        dataLabels: {
+		            enabled: true
+		        }
+		    }
+		},
         series: chart_series
     });
     

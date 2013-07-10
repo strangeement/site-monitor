@@ -6,7 +6,16 @@ if(!isset($sites[$code])) {
 }
 
 $site= $sites[$code];
-$site_benchmark= benchmarkResults($code);
+
+$timeframe= isset($_GET['timeframe']) && !empty($_GET['timeframe']) ? urldecode($_GET['timeframe']) : false;
+if($timeframe) {
+	$benchmark= benchmarks($timeframe, $site['code']);
+} else {
+	$benchmark= $site;
+}
+
+$uri= "/site/{$code}";
+
 $benchmarks= query_db_assoc("select * from `benchmark` where `site`=:site order by `created_at` desc limit 20", array('site' => $site['code']));
 $codes= query_db_assoc("select * from `code` where `site`=:site order by `created_at` desc limit 20", array('site' => $site['code']));
 ?>
@@ -19,22 +28,23 @@ $codes= query_db_assoc("select * from `code` where `site`=:site order by `create
 	<a href="/benchmark/<?= $site['code'] ?>?redirect=<?= urlencode("/site/{$site['code']}") ?>;bust=<?= time() ?>">Benchmark</a>
 </div>
 
+<?php include('tpl/timeframe.nav.php') ?>
 <div id="chart"></div>
 <script type="text/javascript">
-	chart_points= ['-120d', '-60d', '-30d', '-7d', '-3d', '-1d', '-12h', '-3h', '-1h', '-45m', '-30m', '-15m', '-5m'];	
+	chart_points= [<?php if($timeframe): ?>'<?= implode('\',\'', array_keys($benchmark)) ?>'<?php else: ?>'-120d', '-60d', '-30d', '-7d', '-3d', '-1d', '-12h', '-3h', '-1h', '-45m', '-30m', '-15m', '-5m'<?php endif; ?>];
 
 	var chart_series= [
 	{
         name: '<?= $code ?>',
-        data: [<?= intval($site_benchmark['120d']) ?>, <?= intval($site_benchmark['60d']) ?>, <?= intval($site_benchmark['30d']) ?>, <?= intval($site_benchmark['7d']) ?>, <?= intval($site_benchmark['3d']) ?>, <?= intval($site_benchmark['1d']) ?>, <?= intval($site_benchmark['12h']) ?>, <?= intval($site_benchmark['3h']) ?>, <?= intval($site_benchmark['1h']) ?>, <?= intval($site_benchmark['45m']) ?>, <?= intval($site_benchmark['30m']) ?>, <?= intval($site_benchmark['15m']) ?>, <?= intval($site_benchmark['5m']) ?>]
+        data: [<?php if($timeframe): ?><?= implode(',', array_values($benchmark)) ?><?php else: ?><?= intval($benchmark['120d']) ?>, <?= intval($benchmark['60d']) ?>, <?= intval($benchmark['30d']) ?>, <?= intval($benchmark['7d']) ?>, <?= intval($benchmark['3d']) ?>, <?= intval($benchmark['1d']) ?>, <?= intval($benchmark['12h']) ?>, <?= intval($benchmark['3h']) ?>, <?= intval($benchmark['1h']) ?>, <?= intval($benchmark['45m']) ?>, <?= intval($benchmark['30m']) ?>, <?= intval($benchmark['15m']) ?>, <?= intval($benchmark['5m']) ?><?php endif; ?>]
     }
     ];
 </script>
 <br>
 
 <div id="site-stats" class="well">
-	<div class="stat">URLs monitored: <?= count($site['benchmark']) ?></div>
-	<div class="stat">Median response time: <?= intval($site_benchmark['median']) ?>ms</div>
+	<div class="stat">URLs monitored: <?= count(unserialize($site['urls'])) ?></div>
+	<div class="stat">Median response time: <?= intval($site['median']) ?>ms</div>
 	<div class="stat">Response errors: <?= query_db_value("select count(*) from `code` where `site`=:site and `code` <> 200", array('site' => $code)) ?></div>
 </div>
 

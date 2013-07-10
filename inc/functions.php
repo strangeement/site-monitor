@@ -1,5 +1,4 @@
 <?php
-
 function benchmark($url) {
 	$sess_id= uniqid();
 	
@@ -19,6 +18,72 @@ function benchmark($url) {
 	}
 	
 	return false;
+}
+
+function benchmarks($timeframe='1h', $site=null) {
+	global $sites;
+	
+	$from= 60*60;
+	if(preg_match('/^\d+$/', $timeframe)) {
+		$from= intval($timeframe)*60;
+	} else if(preg_match('/(\d+)(\w)/i', $timeframe, $timeframe_match)) {
+		$value= $timeframe_match[1];
+		$unit= $timeframe_match[2];
+		if($unit === 'm') {
+			$from= $value * 60;
+		} else if($unit === 'h') {
+			$from= $value * 60 * 60;
+		} else if($unit === 'd') {
+			$from= $value * 60 * 60 * 24;
+		} else if($unit === 'w') {
+			$from= $value * 60 * 60 * 24 * 7;
+		} else if($unit === 'm') {
+			$from= $value * 60 * 60 * 24 * 30;
+		}
+	}
+	
+	$sql= "select * from `benchmark` where " . ($site ? "`site`=:site and" : '') . " `created_at` > unix_timestamp()-{$from} order by `created_at` desc";
+	
+	if($site) {
+		$benchmarks= query_db_assoc($sql, array('site' => $site));
+	} else {
+		$benchmarks= query_db_assoc($sql, $params);
+		$benchmarks= array_reverse($benchmarks);
+	}
+	
+	$timekeys= array();
+	
+	$benchmarks_sorted= array();
+	foreach($benchmarks as $benchmark) {
+		if(!isset($benchmarks_sorted[$benchmark['site']])) {
+			$benchmarks_sorted[$benchmark['site']]= array();
+		}
+		
+		$timekey= date('Y-m-d H:i', $benchmark['created_at']);
+		if(!in_array($timekey, $timekeys)) {
+			array_push($timekeys, $timekey);
+		}
+		
+		$benchmarks_sorted[$benchmark['site']][$timekey]= intval($benchmark['median']);
+	}
+	
+	foreach($benchmarks_sorted as &$benchmark) {
+		foreach($timekeys as $timekey) {
+			if(!isset($benchmark[$timekey])) {
+				$benchmark[$timekey]= 0;
+			}
+		}
+		
+		ksort($benchmark, SORT_STRING);
+	}
+	
+	if($site) {
+		return $benchmarks_sorted[$site];
+	}
+	
+	ksort($benchmarks_sorted);
+	
+	return $benchmarks_sorted;
 }
 
 function debug($var) {

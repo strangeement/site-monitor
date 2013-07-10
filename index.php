@@ -9,21 +9,17 @@ $validation_errors= query_db_assoc("select * from `validation` where `found` > 0
 <h1>Site monitor</h1>
 <br>
 
-<div class="alert">
-	<a href="/codes">Response codes</a>
-	<a href="/benchmarks">Benchmarks</a>
-	<a href="/validation">Validation</a>
-</div>
+<?php include('tpl/nav.php') ?>
 
 <div id="chart"></div>
 <script type="text/javascript">
 	var chart_series= [
-	<?php foreach($sites as $site):
-	$site_benchmark= benchmarkResults($site['code']);
+	<?php
+	foreach($sites as $site):
 	?>
 	{
         name: '<?= $site['code'] ?>',
-        data: [<?= intval($site_benchmark['30d']) ?>, <?= intval($site_benchmark['7d']) ?>, <?= intval($site_benchmark['3d']) ?>, <?= intval($site_benchmark['1d']) ?>, <?= intval($site_benchmark['12h']) ?>, <?= intval($site_benchmark['3h']) ?>, <?= intval($site_benchmark['1h']) ?>, <?= intval($site_benchmark['45m']) ?>, <?= intval($site_benchmark['30m']) ?>, <?= intval($site_benchmark['15m']) ?>, <?= intval($site_benchmark['5m']) ?>]
+        data: [<?= intval($site['30d']) ?>, <?= intval($site['7d']) ?>, <?= intval($site['3d']) ?>, <?= intval($site['1d']) ?>, <?= intval($site['12h']) ?>, <?= intval($site['3h']) ?>, <?= intval($site['1h']) ?>, <?= intval($site['45m']) ?>, <?= intval($site['30m']) ?>, <?= intval($site['15m']) ?>, <?= intval($site['5m']) ?>]
     },
     <?php endforeach; ?>
     ];
@@ -38,7 +34,8 @@ $validation_errors= query_db_assoc("select * from `validation` where `found` > 0
 	<th>Domain</th>
 	<th>Error codes</th>
 	<th>Validation errors</th>
-	<th>24h</th>
+	<th>12h</th>
+	<th>1d</th>
 	<th>3d</th>
 	<th>7d</th>
 	<th>30d</th>
@@ -50,14 +47,15 @@ $validation_errors= query_db_assoc("select * from `validation` where `found` > 0
 <?php foreach($sites as $site): ?>
 <tr>
 	<td><a href="/site/<?= $site['code'] ?>"><?= $site['code'] ?></a></td>
-	<td><?= $site['domain'] ?></td>
-	<td><?= query_db_value("select count(*) from `code` where `site`=:site and `code` <> 200", array('site' => $site['code'])) ?></td>
-	<td><?= query_db_value("select `found` from `validation` where `site`=:site and `found` > 1 or `error` is not null order by `created_at` limit 1", array('site' => $site['code'])) ?></td>
-	<td><?= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site and `created_at` > unix_timestamp()-60*60*24", array('site' => $site['code']))) ?></td>
-	<td><?= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site and `created_at` > unix_timestamp()-60*60*24*3", array('site' => $site['code']))) ?></td>
-	<td><?= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site and `created_at` > unix_timestamp()-60*60*24*7", array('site' => $site['code']))) ?></td>
-	<td><?= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site and `created_at` > unix_timestamp()-60*60*24*30", array('site' => $site['code']))) ?></td>
-	<td><?= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site", array('site' => $site['code']))) ?></td>
+	<td><a class="external" href="http://<?= $site['domain'] ?>"><?= $site['domain'] ?></a></td>
+	<td><?= intval($site['code_errors']) === 0 ? '' : intval($site['code_errors']) ?></td>
+	<td><?= $site['validation_errors'] ?></td>
+	<td><?= intval($site['12h']) ?></td>
+	<td><?= intval($site['1d']) ?></td>
+	<td><?= is_null($site['3d']) ? '' : intval($site['3d']) ?></td>
+	<td><?= is_null($site['3d']) ? '' : intval($site['7d']) ?></td>
+	<td><?= is_null($site['3d']) ? '' : intval($site['30d']) ?></td>
+	<td><?= intval($site['median']) ?></td>
 	<td>
 		<a href="/benchmark/<?= $site['code'] ?>?bust=<?= time() ?>">Benchmark</a>
 	</td>

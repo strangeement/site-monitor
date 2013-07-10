@@ -13,8 +13,9 @@ foreach($sites as $site) {
 	$domain= $site['domain'];
 	
 	if(is_cli) debug("Benchmark");
-	if(isset($site['benchmark']) && !empty($site['benchmark'])) {
-		foreach($site['benchmark'] as $alias => $url) {
+	if(isset($site['urls']) && !empty($site['urls'])) {
+		$urls= unserialize($site['urls']);
+		foreach($urls as $alias => $url) {
 			if(!preg_match('/https?:\/\//i', $url)) {
 				$url= "http://{$domain}{$url}";
 			} else if(strpos($url, '$domain') !== false) {

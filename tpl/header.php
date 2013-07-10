@@ -40,6 +40,7 @@
                         <ul class="nav">
                             <li class="active"><a href="/">Home</a></li>
                             <li><a href="/monitor?bust=<?= time() ?>">Monitor</a></li>
+                            <li><a class="external" href="http://dev/">Dev</a></li>
                         <form class="navbar-form pull-right">
                             <input class="span2" type="text" placeholder="Email">
                             <input class="span2" type="password" placeholder="Password">

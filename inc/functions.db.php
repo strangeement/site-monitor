@@ -54,6 +54,13 @@ function query_db($query, $params=false) {
  * @return string
  */
 function query_db_assoc($query, $params=array(), $id_as_key=false) {
+	$cache_key= md5($query);
+	if(strpos(strtolower($query), 'select') === 0) {
+		if(apc_exists($cache_key)) {
+			return apc_fetch($cache_key);
+		}
+	}
+	
 	$result= query_db($query, $params);
 	if(!$result) {
 		return array();
@@ -67,6 +74,8 @@ function query_db_assoc($query, $params=array(), $id_as_key=false) {
 			$records[]= $row;
 		}
 	}
+	
+	apc_add($cache_key, $records, 60*5);
 	
 	return $records;
 }

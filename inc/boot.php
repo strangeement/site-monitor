@@ -11,13 +11,10 @@ define('dbname', 'site-monitor');
 define('dbuser', 'site-monitor');
 define('dbpassword', 'site-monitor');
 
+$controller= str_replace('.php', '', basename($_SERVER['SCRIPT_FILENAME']));
+
 require_once('inc/functions.php');
 require_once('inc/functions.db.php');
 require_once('inc/dbo.php');
 
-$sites= array();
-$sites_confs= glob('conf/sites/*.php');
-foreach($sites_confs as $site) {
-	$code= substr(basename($site), 0, strpos(basename($site), '.'));
-	$sites[$code]= include('conf/sites/' . basename($site));
-}
+$sites= getSites();
