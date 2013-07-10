@@ -27,6 +27,23 @@ function getSites() {
 	return $sites;
 }
 
+function insertAlert($site, $type, $url, $message) {
+//	Do not send the alert more than once per hour
+//	if(intval(query_db_value("select count(*) from `alert` where `site`=:site and `type`=:type and `url`=:url and `created_at`>(unix_timestamp()-60*60)", array('site' => $site, 'type' => $type, 'url' => $url))) > 0) {
+//		return;
+//	}
+	
+	$sent= mail("richardvallee@gmail.com", 'Site monitor alert', $message);
+	
+	$sql= "insert into `alert` (`site`, `type`, `url`, `message`, `created_at`) values (:site, :type, :url, :message, unix_timestamp())";
+	return query_db($sql, array(
+		'site' => $site,
+		'type' => $type,
+		'url' => $url,
+		'message' => $message
+	));
+}
+
 function insertBenchmark($site, $url, $median, $min, $max) {
 	$sql= "insert into `benchmark` (`site`, `url`, `median`, `min`, `max`, `created_at`) values (:site, :url, :median, :min, :max, unix_timestamp())";
 	return query_db($sql, array(

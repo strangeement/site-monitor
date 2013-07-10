@@ -2,6 +2,7 @@
 <?php
 $timeframe= isset($_GET['timeframe']) && !empty($_GET['timeframe']) ? urldecode($_GET['timeframe']) : 5;
 $benchmarks= benchmarks($timeframe);
+$uri= '/stats';
 ?>
 <?php include('tpl/header.php'); ?>
 

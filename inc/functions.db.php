@@ -53,9 +53,9 @@ function query_db($query, $params=false) {
  * @param string $query
  * @return string
  */
-function query_db_assoc($query, $params=array(), $id_as_key=false) {
+function query_db_assoc($query, $params=array(), $id_as_key=false, $cache=true) {
 	$cache_key= md5($query);
-	if(strpos(strtolower($query), 'select') === 0) {
+	if($cache && strpos(strtolower($query), 'select') === 0) {
 		if(apc_exists($cache_key)) {
 			return apc_fetch($cache_key);
 		}

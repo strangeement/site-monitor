@@ -13,6 +13,8 @@ define('dbpassword', 'site-monitor');
 
 $controller= str_replace('.php', '', basename($_SERVER['SCRIPT_FILENAME']));
 
+date_default_timezone_set('America/Montreal');
+
 require_once('inc/functions.php');
 require_once('inc/functions.db.php');
 require_once('inc/dbo.php');

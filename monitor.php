@@ -1,6 +1,8 @@
 <?php
 require_once('inc/boot.php');
 
+checkAlerts();
+//die;
 if(is_cli) {
 	debug("Site monitor");
 } else {

@@ -47,7 +47,7 @@ function benchmarks($timeframe='1h', $site=null) {
 	if($site) {
 		$benchmarks= query_db_assoc($sql, array('site' => $site));
 	} else {
-		$benchmarks= query_db_assoc($sql, $params);
+		$benchmarks= query_db_assoc($sql);
 		$benchmarks= array_reverse($benchmarks);
 	}
 	
@@ -84,6 +84,18 @@ function benchmarks($timeframe='1h', $site=null) {
 	ksort($benchmarks_sorted);
 	
 	return $benchmarks_sorted;
+}
+
+function checkAlerts() {
+	$error_codes= query_db_assoc("select * from `code` where `code` <> 200 and `created_at` > unix_timestamp()-60");
+	foreach($error_codes as $error_code) {
+		insertAlert($error_code['site'], 'error', $error_code['url'], "{$error_code['url']} returned {$error_code['code']}");
+	}
+	
+	$slow_sites= query_db_assoc("select *, avg(`median`) as `median_avg` from `benchmark` group by `site` having `median_avg` > 500 order by `site`");
+	foreach($slow_sites as $slow_site) {
+		insertAlert($slow_site['site'], 'slow', $slow_site['url'], "{$slow_site['url']} has an average of " . intval($slow_site['median_avg']) . "ms for the last 5 minutes");
+	}
 }
 
 function debug($var) {
