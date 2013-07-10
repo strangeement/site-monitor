@@ -29,9 +29,9 @@ function getSites() {
 
 function insertAlert($site, $type, $url, $message) {
 //	Do not send the alert more than once per hour
-//	if(intval(query_db_value("select count(*) from `alert` where `site`=:site and `type`=:type and `url`=:url and `created_at`>(unix_timestamp()-60*60)", array('site' => $site, 'type' => $type, 'url' => $url))) > 0) {
-//		return;
-//	}
+	if(intval(query_db_value("select count(*) from `alert` where `site`=:site and `type`=:type and `url`=:url and `created_at`>(unix_timestamp()-60*60)", array('site' => $site, 'type' => $type, 'url' => $url))) > 0) {
+		return;
+	}
 	
 	$sent= mail("richardvallee@gmail.com", 'Site monitor alert', $message);
 	
