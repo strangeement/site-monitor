@@ -5,6 +5,9 @@ $errors= query_db_assoc("select * from `code` where `code` != 200 order by `crea
 <?php include('tpl/header.php'); ?>
 
 <h1>Errors</h1>
+<br>
+
+<?php include('tpl/nav.php') ?>
 
 <table id="errors" class="table">
 <tr>

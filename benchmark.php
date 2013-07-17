@@ -14,8 +14,14 @@ $median= null;
 
 if(is_cli) debug("Benchmark {$domain}");
 
-if(isset($site['benchmark']) && !empty($site['benchmark'])) {
-	foreach($site['benchmark'] as $alias => $url) {
+if(isset($site['urls']) && !empty($site['urls'])) {
+	foreach($site['urls'] as $alias => $url) {
+		$benchmark= false;
+		if(is_array($url)) {
+			$benchmark= isset($url['benchmark']) && $url['benchmark'];
+			$url= $url['url'];
+		}
+		
 		if(!preg_match('/https?:\/\//i', $url)) {
 			$url= "http://{$domain}{$url}";
 		} else if(strpos($url, '$domain') !== false) {
@@ -26,11 +32,13 @@ if(isset($site['benchmark']) && !empty($site['benchmark'])) {
 //			debug("Response for {$url}: {$code}");
 		insertResponseCode($site['code'], $url, $code);
 		
-		$benchmark= benchmark($url);
 		if($benchmark) {
-			debug("Benchmark for {$url}: {$benchmark['median']}ms");
-			insertBenchmark($site['code'], $url, $benchmark['median'], $benchmark['min'], $benchmark['max']);
-			$median= $benchmark['median'];
+			$benchmark= benchmark($url);
+			if($benchmark) {
+				debug("Benchmark for {$url}: {$benchmark['median']}ms");
+				insertBenchmark($site['code'], $url, $benchmark['median'], $benchmark['min'], $benchmark['max']);
+				$median= $benchmark['median'];
+			}
 		}
 	}
 }

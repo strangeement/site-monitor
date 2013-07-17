@@ -11,4 +11,5 @@
 	<a href="<?= $uri ?>/3d">3d</a>
 	<a href="<?= $uri ?>/7d">7d</a>
 	<a href="<?= $uri ?>/30d">30d</a>
+	<a href="<?= $uri ?>">All</a>
 </nav>

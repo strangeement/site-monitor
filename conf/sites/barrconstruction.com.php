@@ -2,6 +2,7 @@
 return array(
 	'code' => 'barrconstruction',
 	'domain' => 'barrconstruction.com',
+	'alert_threshold' => 600,
 	'benchmark' => array(
 		'home' => '/',
 		'expertise' => '/expertise',

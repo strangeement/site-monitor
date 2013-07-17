@@ -18,7 +18,7 @@ $errors= query_db_assoc("select * from `code` where `code` != 200 order by `crea
 	<td><a class="external" href="/site/<?= $error['site'] ?>"><?= $error['site'] ?></a></td>
 	<td><a class="external" href="<?= $error['url'] ?>"><?= substr($error['url'], strpos($error['url'], '/')+1) ?></a></td>
 	<td><?= $error['code'] ?></td>
-	<td><?= $error['created_at'] ?></td>
+	<td><?= date('r', $error['created_at']) ?></td>
 </tr>
 <?php endforeach; ?>
 </table>

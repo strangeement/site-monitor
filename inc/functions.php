@@ -53,13 +53,22 @@ function benchmarks($timeframe='1h', $site=null) {
 	
 	$timekeys= array();
 	
+	$time_resolution= 'Y-m-d H:i';
+	if($from >= 60*60*24) {
+		$time_resolution= 'Y-m-d H';
+	}
+	
+	if($from >= 60*60*24*7) {
+		$time_resolution= 'Y-m-d';
+	}
+	
 	$benchmarks_sorted= array();
 	foreach($benchmarks as $benchmark) {
 		if(!isset($benchmarks_sorted[$benchmark['site']])) {
 			$benchmarks_sorted[$benchmark['site']]= array();
 		}
 		
-		$timekey= date('Y-m-d H:i', $benchmark['created_at']);
+		$timekey= date($time_resolution, $benchmark['created_at']);
 		if(!in_array($timekey, $timekeys)) {
 			array_push($timekeys, $timekey);
 		}
@@ -92,9 +101,68 @@ function checkAlerts() {
 		insertAlert($error_code['site'], 'error', $error_code['url'], "{$error_code['url']} returned {$error_code['code']}");
 	}
 	
-	$slow_sites= query_db_assoc("select *, avg(`median`) as `median_avg` from `benchmark` group by `site` having `median_avg` > 500 order by `site`");
+	$slow_sites= query_db_assoc("select *, avg(`median`) as `median_avg` from `benchmark` where `created_at`>unix_timestamp()-60*5 group by `site` having `median_avg` > 500 order by `site`");
+	
+	global $sites;
 	foreach($slow_sites as $slow_site) {
-		insertAlert($slow_site['site'], 'slow', $slow_site['url'], "{$slow_site['url']} has an average of " . intval($slow_site['median_avg']) . "ms for the last 5 minutes");
+		if(!isset($sites[$slow_site['site']])) {
+			continue;
+		}
+		
+		if(intval($slow_site['median_avg']) > intval($sites[$slow_site['site']]['alert_threshold'])) {
+			insertAlert($slow_site['site'], 'slow', $slow_site['url'], "{$slow_site['url']} has an average of " . intval($slow_site['median_avg']) . "ms for the last 5 minutes");
+		}
+	}
+}
+
+function compressBenchmarks() {
+	global $sites;
+	
+	foreach($sites as $site) {
+		compressSiteBenchmarks($site, 300);
+	}
+}
+
+function compressSiteBenchmarks($site, $interval) {
+	$benchmarks= query_db_assoc("select `benchmark`.*, round(`created_at`/{$interval}) as `interval` from `benchmark` where `site`=:site and unix_timestamp()-`created_at` > 60*60 order by `interval`", array('site' => $site['code']));
+	
+	debug("Compressing " . count($benchmarks) . " benchmarks for {$site['domain']}");
+	
+	$n= count($benchmarks);
+	
+	$intervals= array();
+	foreach($benchmarks as $benchmark) {
+		if(!isset($intervals[$benchmark['interval']])) {
+			$intervals[$benchmark['interval']]= array();
+		}
+		
+		$intervals[$benchmark['interval']][]= $benchmark;
+	}
+	
+	foreach($intervals as $benchmarks) {
+		while(count($benchmarks) > 1) {
+			$benchmark= reset($benchmarks);
+			$merge_benchmark= array_pop($benchmarks);
+			
+			$new_min= (intval($benchmark['min']) + intval($merge_benchmark['min'])) / 2;
+			$new_max= (intval($benchmark['max']) + intval($merge_benchmark['max'])) / 2;
+			$new_median= (intval($benchmark['median']) + intval($merge_benchmark['median'])) / 2;
+			
+			$sql= "update `benchmark` set `min`=:min, `max`=:max, `median`=:median where `id`=:id";
+			query_db($sql, array(
+				'min' => $new_min,
+				'max' => $new_max,
+				'median' => $new_median,
+				'id' => $benchmark['id']
+			));
+			
+			query_db("delete from `benchmark` where `id`=:id", array('id' => $merge_benchmark['id']));
+			$n--;
+		
+			if($n % 100 === 0) {
+				debug("{$n} remaining");
+			}
+		}
 	}
 }
 
@@ -107,6 +175,8 @@ function debug($var) {
 		} else {
 			var_dump($var);
 		}
+		
+		flush();
 	}
 }
 

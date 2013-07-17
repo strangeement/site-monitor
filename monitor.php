@@ -1,8 +1,6 @@
 <?php
 require_once('inc/boot.php');
 
-checkAlerts();
-//die;
 if(is_cli) {
 	debug("Site monitor");
 } else {
@@ -16,8 +14,13 @@ foreach($sites as $site) {
 	
 	if(is_cli) debug("Benchmark");
 	if(isset($site['urls']) && !empty($site['urls'])) {
-		$urls= unserialize($site['urls']);
-		foreach($urls as $alias => $url) {
+		foreach($site['urls'] as $url) {
+			$benchmark= true;
+			if(is_array($url)) {
+				$benchmark= isset($url['benchmark']) && $url['benchmark'];
+				$url= $url['url'];
+			}
+			
 			if(!preg_match('/https?:\/\//i', $url)) {
 				$url= "http://{$domain}{$url}";
 			} else if(strpos($url, '$domain') !== false) {
@@ -28,13 +31,14 @@ foreach($sites as $site) {
 //			debug("Response for {$url}: {$code}");
 			insertResponseCode($site['code'], $url, $code);
 			
-			$benchmark= benchmark($url);
 			if($benchmark) {
-				debug("Benchmark for {$url}: {$benchmark['median']}ms");
-				insertBenchmark($site['code'], $url, $benchmark['median'], $benchmark['min'], $benchmark['max']);
+				$benchmark= benchmark($url);
+				if($benchmark) {
+					debug("Benchmark for {$url}: {$benchmark['median']}ms");
+					insertBenchmark($site['code'], $url, $benchmark['median'], $benchmark['min'], $benchmark['max']);
+					debug("Current run time: " . intval((microtime(true)-$begin)*1000) . "ms.");
+				}
 			}
-			
-			debug("Current run time: " . intval((microtime(true)-$begin)*1000) . "ms.");
 		}
 	}
 	

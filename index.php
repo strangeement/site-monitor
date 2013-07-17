@@ -48,7 +48,7 @@ $validation_errors= query_db_assoc("select * from `validation` where `found` > 0
 <br>
 <?php endif; ?>
 
-<h2><?= count($sites) ?> sites</h2>
+<h2 id="sites"><?= count($sites) ?> sites (<a href="/site/new">Add</a>)</h2>
 <table class="table tablesorter">
 <thead>
 <tr>
@@ -75,10 +75,11 @@ $validation_errors= query_db_assoc("select * from `validation` where `found` > 0
 	<td><?= intval($site['12h']) ?></td>
 	<td><?= intval($site['1d']) ?></td>
 	<td><?= is_null($site['3d']) ? '' : intval($site['3d']) ?></td>
-	<td><?= is_null($site['3d']) ? '' : intval($site['7d']) ?></td>
-	<td><?= is_null($site['3d']) ? '' : intval($site['30d']) ?></td>
+	<td><?= is_null($site['7d']) ? '' : intval($site['7d']) ?></td>
+	<td><?= is_null($site['30d']) ? '' : intval($site['30d']) ?></td>
 	<td><?= intval($site['median']) ?></td>
 	<td>
+		<a href="/site/<?= $site['code'] ?>/edit?bust=<?= time() ?>">Edit</a>
 		<a href="/benchmark/<?= $site['code'] ?>?bust=<?= time() ?>">Benchmark</a>
 	</td>
 </tr>

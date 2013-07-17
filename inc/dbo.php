@@ -1,5 +1,10 @@
 <?php
 function getSites() {
+	$cache_key= "sites";
+	if(apc_exists($cache_key)) {
+		return apc_fetch($cache_key);
+	}
+	
 	$sql= "select *,
 		(select count(*) from `code` where `code`.`site`=`site`.`code` and `code` <> 200) as `code_errors`,
 		(select `found` from `validation` where `validation`.`site`=`site`.`code` and `found` > 1 or `error` is not null order by `created_at` limit 1) as `validation_errors`,
@@ -19,17 +24,20 @@ function getSites() {
 		(select avg(`median`) from `benchmark` where `benchmark`.`site`=`site`.`code` and `created_at`>unix_timestamp()-60*60*24*120 and `created_at`<unix_timestamp()-60*60*24*60) as `120d` from `site` order by `code`";
 	
 	$sites= array();
-	$sites_rows= query_db_assoc($sql);
+	$sites_rows= query_db_assoc($sql, null, false, true);
 	foreach($sites_rows as $site) {
+		if(!empty($site['urls'])) $site['urls']= unserialize($site['urls']);
 		$sites[$site['code']]= $site;
 	}
+	
+	apc_store($cache_key, $sites, 300);
 	
 	return $sites;
 }
 
 function insertAlert($site, $type, $url, $message) {
-//	Do not send the alert more than once per hour
-	if(intval(query_db_value("select count(*) from `alert` where `site`=:site and `type`=:type and `url`=:url and `created_at`>(unix_timestamp()-60*60)", array('site' => $site, 'type' => $type, 'url' => $url))) > 0) {
+//	Do not record the alert more than once per period
+	if(intval(query_db_value("select count(*) from `alert` where `site`=:site and `type`=:type and `url`=:url and `created_at`>(unix_timestamp()-60*30)", array('site' => $site, 'type' => $type, 'url' => $url))) > 0) {
 		return;
 	}
 	
@@ -68,6 +76,17 @@ function insertResponseCode($site, $url, $code) {
 	));
 }
 
+function insertSite($code, $domain, $alert_threshold, $ssl, $urls) {
+	$sql= "insert into `site` (`code`, `domain`, `alert_threshold`, `ssl`, `urls`) values (:code, :domain, :alert_threshold, :ssl, :urls)";
+	return query_db($sql, array(
+		'code' => $code,
+		'domain' => $domain,
+		'alert_threshold' => $alert_threshold,
+		'ssl' => $ssl,
+		'urls' => $urls
+	));
+}
+
 function insertValidationErrors($site, $url, $found, $error) {
 	$sql= "insert into `validation` (`site`, `url`, `found`, `error`, `created_at`) values (:site, :url, :found, :error, unix_timestamp())";
 	return query_db($sql, array(
@@ -75,5 +94,17 @@ function insertValidationErrors($site, $url, $found, $error) {
 		'url' => $url,
 		'found' => $found,
 		'error' => $error
+	));
+}
+
+function updateSite($id, $code, $domain, $alert_threshold, $ssl, $urls) {
+	$sql= "update `site` set `code`=:code, `domain`=:domain, `alert_threshold`=:alert_threshold, `ssl`=:ssl, `urls`=:urls where `id`=:id";
+	return query_db($sql, array(
+		'code' => $code,
+		'domain' => $domain,
+		'alert_threshold' => $alert_threshold,
+		'ssl' => $ssl,
+		'urls' => serialize($urls),
+		'id' => $id
 	));
 }

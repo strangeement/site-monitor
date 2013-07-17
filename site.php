@@ -23,9 +23,12 @@ $codes= query_db_assoc("select * from `code` where `site`=:site order by `create
 
 <h1><?= $site['code'] ?> monitor</h1>
 
-<div class="alert">
-	<a class="external" href="http://<?= $site['domain'] ?>">Visit</a>
-	<a href="/benchmark/<?= $site['code'] ?>?redirect=<?= urlencode("/site/{$site['code']}") ?>;bust=<?= time() ?>">Benchmark</a>
+<div class="well">
+	<nav>
+		<a class="external" href="http://<?= $site['domain'] ?>">Visit</a>
+		<a href="/site/<?= $site['code'] ?>/edit">Edit</a>
+		<a href="/benchmark/<?= $site['code'] ?>?redirect=<?= urlencode("/site/{$site['code']}") ?>;bust=<?= time() ?>">Benchmark</a>
+	</nav>
 </div>
 
 <?php include('tpl/timeframe.nav.php') ?>
@@ -43,7 +46,7 @@ $codes= query_db_assoc("select * from `code` where `site`=:site order by `create
 <br>
 
 <div id="site-stats" class="well">
-	<div class="stat">URLs monitored: <?= count(unserialize($site['urls'])) ?></div>
+	<div class="stat">URLs monitored: <?= count($site['urls']) ?></div>
 	<div class="stat">Median response time: <?= intval($site['median']) ?>ms</div>
 	<div class="stat">Response errors: <?= query_db_value("select count(*) from `code` where `site`=:site and `code` <> 200", array('site' => $code)) ?></div>
 </div>

@@ -1,6 +1,6 @@
 <?php require_once('inc/boot.php') ?>
 <?php
-$timeframe= isset($_GET['timeframe']) && !empty($_GET['timeframe']) ? urldecode($_GET['timeframe']) : 5;
+$timeframe= isset($_GET['timeframe']) && !empty($_GET['timeframe']) ? urldecode($_GET['timeframe']) : 15;
 $benchmarks= benchmarks($timeframe);
 $uri= '/stats';
 ?>
@@ -15,7 +15,10 @@ $uri= '/stats';
 <br>
 <div id="chart"></div>
 <script type="text/javascript">
-	<?php $first_site= array_keys(current($benchmarks)); ?>
+	<?php
+	$first_site= reset($benchmarks);
+	$first_site= array_keys($first_site);
+	?>
 	var chart_points= ['<?= implode('\',\'', $first_site) ?>'];
 
 	var chart_series= [
