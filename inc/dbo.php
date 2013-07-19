@@ -1,4 +1,57 @@
 <?php
+function getMedianDistribution($site=null) {
+	if($site) {
+		$count= intval(query_db_value("select count(*) from `benchmark` where `site`=:site", array('site' => $site['code'])));
+	} else {
+		$count= intval(query_db_value("select count(*) from `benchmark`"));
+	}
+	
+	$percentile_50th= getPercentile($site, 50);
+	$percentile_60th= getPercentile($site, 60);
+	$percentile_70th= getPercentile($site, 70);
+	$percentile_80th= getPercentile($site, 80);
+	$percentile_90th= getPercentile($site, 90);
+	$percentile_95th= getPercentile($site, 95);
+	$percentile_98th= getPercentile($site, 98);
+	$percentile_99th= getPercentile($site, 99);
+	
+	return array(
+		50 => $percentile_50th,
+		60 => $percentile_60th,
+		70 => $percentile_70th,
+		80 => $percentile_80th,
+		90 => $percentile_90th,
+		95 => $percentile_95th,
+		98 => $percentile_98th,
+		99 => $percentile_99th
+	);
+}
+
+function getPercentile($site, $percentile) {
+	$median= 0;
+	if($site) {
+		$avg= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site", array('site' => $site['code'])));
+		$total_count= intval(query_db_value("select count(*) from `benchmark` where `site`=:site", array('site' => $site['code'])));
+		$count= intval(query_db_value("select count(*) from `benchmark` where `site`=:site and `median`<:median", array('site' => $site['code'], 'median' => $median)));
+	} else {
+		$avg= intval(query_db_value("select avg(`median`) from `benchmark`"));
+		$total_count= intval(query_db_value("select count(*) from `benchmark`"));
+		$count= intval(query_db_value("select count(*) from `benchmark` where `median`<:median", array('median' => $median)));
+	}
+	
+	while($count/$total_count < $percentile/100) {
+		$median= $median+25;
+		
+		if($site) {
+			$count= intval(query_db_value("select count(*) from `benchmark` where `site`=:site and `median`<:median", array('site' => $site['code'], 'median' => $median)));
+		} else {
+			$count= intval(query_db_value("select count(*) from `benchmark` where `median`<:median", array('median' => $median)));
+		}
+	}
+	
+	return $median;
+}
+
 function getSites() {
 	$cache_key= "sites";
 	if(apc_exists($cache_key)) {

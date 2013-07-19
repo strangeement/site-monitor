@@ -18,6 +18,8 @@ $uri= "/site/{$code}";
 
 $benchmarks= query_db_assoc("select * from `benchmark` where `site`=:site order by `created_at` desc limit 20", array('site' => $site['code']));
 $codes= query_db_assoc("select * from `code` where `site`=:site order by `created_at` desc limit 20", array('site' => $site['code']));
+$median= intval(query_db_value("select avg(`median`) from `benchmark` where `site`=:site", array('site' => $code)));
+$distribution= getMedianDistribution($site);
 ?>
 <?php include('tpl/header.php'); ?>
 
@@ -43,6 +45,43 @@ $codes= query_db_assoc("select * from `code` where `site`=:site order by `create
 	<div class="stat">URLs monitored: <?= count($site['urls']) ?></div>
 	<div class="stat">Median response time: <?= intval($site['median']) ?>ms</div>
 	<div class="stat">Response errors: <?= query_db_value("select count(*) from `code` where `site`=:site and `code` <> 200", array('site' => $code)) ?></div>
+	<div class="stat">
+		<h4>Distribution</h4>
+		<table class="table">
+			<tr>
+				<td>50%</td>
+				<td><?= $distribution[50] ?>ms</td>
+			</tr>
+			<tr>
+				<td>60%</td>
+				<td><?= $distribution[60] ?>ms</td>
+			</tr>
+			<tr>
+				<td>70%</td>
+				<td><?= $distribution[70] ?>ms</td>
+			</tr>
+			<tr>
+				<td>80%</td>
+				<td><?= $distribution[80] ?>ms</td>
+			</tr>
+			<tr>
+				<td>90%</td>
+				<td><?= $distribution[90] ?>ms</td>
+			</tr>
+			<tr>
+				<td>95%</td>
+				<td><?= $distribution[95] ?>ms</td>
+			</tr>
+			<tr>
+				<td>98%</td>
+				<td><?= $distribution[98] ?>ms</td>
+			</tr>
+			<tr>
+				<td>99%</td>
+				<td><?= $distribution[99] ?>ms</td>
+			</tr>
+		</table>
+	</div>
 </div>
 
 <h2><a href="/benchmarks/<?= $site['code'] ?>">Benchmarks</a></h2>
