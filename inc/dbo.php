@@ -24,7 +24,13 @@ function getSites() {
 		(select avg(`median`) from `benchmark` where `benchmark`.`site`=`site`.`code` and `created_at`>unix_timestamp()-60*60*24*120 and `created_at`<unix_timestamp()-60*60*24*60) as `120d` from `site` order by `code`";
 	
 	$sites= array();
-	$sites_rows= query_db_assoc($sql, null, false, true);
+	
+	try {
+		$sites_rows= query_db_assoc($sql, null, false, true);
+	} catch(Exception $ex) {
+		return false;
+	}
+	
 	foreach($sites_rows as $site) {
 		if(!empty($site['urls'])) $site['urls']= unserialize($site['urls']);
 		$sites[$site['code']]= $site;

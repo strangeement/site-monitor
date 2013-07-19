@@ -3,6 +3,7 @@ $begin= microtime(true);
 error_reporting(-1);
 ini_set('display_errors', 'stdout');
 
+$dbconf= include("conf/db.php");
 require_once('conf/app.php');
 
 $controller= str_replace('.php', '', basename($_SERVER['SCRIPT_FILENAME']));
@@ -13,5 +14,9 @@ date_default_timezone_set('America/Montreal');
 require_once('inc/functions.php');
 require_once('inc/functions.db.php');
 require_once('inc/dbo.php');
+
+if($controller !== 'install') {
+//	checkInstall();
+}
 
 $sites= getSites();

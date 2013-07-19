@@ -5,7 +5,8 @@
 #benchmarks tr td {background-color:rgba(0,255,0,0.1);}
 #benchmarks .alert-500 td {background-color:rgba(255,255,0,0.1);}
 #benchmarks .alert-800 td {background-color:rgba(255,200,0,0.2);}
-#benchmarks .alert-1200 td {background-color:rgba(255,150,0,0.1);}
+#benchmarks .alert-1200 td {background-color:rgba(255,150,0,0.3);}
+#benchmarks .alert-2000 td {background-color:rgba(255,75,0,0.25);}
 
 #codes tr td {background-color:rgba(0,255,0,0.1);}
 #codes .error td {background-color:rgba(255,0,0,0.1);}

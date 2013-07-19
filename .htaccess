@@ -1,6 +1,7 @@
 RewriteEngine On
 
 RewriteRule ^benchmark/(\w+)$ /benchmark.php?code=$1 [L,QSA]
+RewriteRule ^benchmarks/(\w+)$ /benchmarks.php?site=$1 [L,QSA]
 RewriteRule ^site/(\w+)/edit$ /site_edit.php?code=$1 [L,QSA]
 RewriteRule ^site/new$ /site_edit.php?code=new [L,QSA]
 RewriteRule ^site/(\w+)(/(\w+))?$ /site.php?code=$1;timeframe=$3 [L,QSA]

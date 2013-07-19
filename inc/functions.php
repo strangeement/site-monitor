@@ -115,6 +115,20 @@ function checkAlerts() {
 	}
 }
 
+function checkInstall() {
+	global $config, $dbconf;
+	
+	$connection= mysql_connect($dbconf['dbhost'], $dbconf['dbuser'], $dbconf['dbpassword']);
+	if(!$connection) {
+		redirect("/install");
+	}
+	
+	$db= mysql_select_db($dbconf['dbname'], $connection);
+	if(!$db) {
+		redirect("/install");
+	}
+}
+
 function compressBenchmarks() {
 	global $sites;
 	
@@ -178,6 +192,26 @@ function debug($var) {
 		
 		flush();
 	}
+}
+
+function displayPagination($id, $prefix, $qs, $page, $page_size, $list_size) {
+	require_once('inc/pagination.php');
+	
+	if(is_null($qs) || !is_array($qs)) {
+		$qs= array();
+	}
+	
+	$qs['page']= '%';
+	
+	$p= new pagination($id);
+	$p->Items($list_size);
+	$p->limit($page_size);
+	$p->changeClass('pagination');
+	$p->currentPage($page);
+	 
+	$p->urlFriendly();
+	$p->target("/{$prefix}" . (is_null($qs) ? null : '?' . str_replace('%25', '%', http_build_query($qs))));
+	return $p->getOutput();
 }
 
 function download_file($url, $path=false, $skip_existing=false, $referer_url=null) {

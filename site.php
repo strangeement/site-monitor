@@ -23,13 +23,7 @@ $codes= query_db_assoc("select * from `code` where `site`=:site order by `create
 
 <h1><?= $site['code'] ?> monitor</h1>
 
-<div class="well">
-	<nav>
-		<a class="external" href="http://<?= $site['domain'] ?>">Visit</a>
-		<a href="/site/<?= $site['code'] ?>/edit">Edit</a>
-		<a href="/benchmark/<?= $site['code'] ?>?redirect=<?= urlencode("/site/{$site['code']}") ?>;bust=<?= time() ?>">Benchmark</a>
-	</nav>
-</div>
+<?php include('tpl/site.nav.php') ?>
 
 <?php include('tpl/timeframe.nav.php') ?>
 <div id="chart"></div>
@@ -51,7 +45,7 @@ $codes= query_db_assoc("select * from `code` where `site`=:site order by `create
 	<div class="stat">Response errors: <?= query_db_value("select count(*) from `code` where `site`=:site and `code` <> 200", array('site' => $code)) ?></div>
 </div>
 
-<h2>Benchmarks</h2>
+<h2><a href="/benchmarks/<?= $site['code'] ?>">Benchmarks</a></h2>
 <table id="benchmarks" class="table">
 <tr>
 	<th>URL</th>
@@ -71,7 +65,7 @@ $codes= query_db_assoc("select * from `code` where `site`=:site order by `create
 <?php endforeach; ?>
 </table>
 
-<h2>Response codes</h2>
+<h2><a href="/codes/<?= $site['code'] ?>">Response codes</a></h2>
 <table id="codes" class="table">
 <tr>
 	<th>URL</th>
