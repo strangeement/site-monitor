@@ -42,9 +42,11 @@ $distribution= getMedianDistribution($site);
 <br>
 
 <div id="site-stats" class="well">
+	<div class="stat">Server: <?= $site['server'] ?></div>
 	<div class="stat">URLs monitored: <?= count($site['urls']) ?></div>
 	<div class="stat">Median response time: <?= intval($site['median']) ?>ms</div>
 	<div class="stat">Response errors: <?= query_db_value("select count(*) from `code` where `site`=:site and `code` <> 200", array('site' => $code)) ?></div>
+	<br>
 	<div class="stat">
 		<h4>Distribution</h4>
 		<table class="table">

@@ -10,6 +10,7 @@ if($id) {
 	}
 }
 
+$server= isset($_POST['server']) ? $_POST['server'] : null;
 $code= isset($_POST['code']) ? $_POST['code'] : null;
 $domain= isset($_POST['domain']) ? $_POST['domain'] : null;
 $alert_threshold= isset($_POST['alert_threshold']) ? intval($_POST['alert_threshold']) : 1000;
@@ -38,9 +39,9 @@ if($urls) {
 }
 
 if($id) {
-	updateSite($id, $code, $domain, $alert_threshold, $ssl, $urls);
+	updateSite($id, $server, $code, $domain, $alert_threshold, $ssl, $urls);
 } else {
-	insertSite($code, $domain, $alert_threshold, $ssl, $urls);
+	insertSite($code, $server, $domain, $alert_threshold, $ssl, $urls);
 }
 
 apc_delete("sites");

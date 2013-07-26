@@ -2,6 +2,7 @@
 $begin= microtime(true);
 error_reporting(-1);
 ini_set('display_errors', 'stdout');
+ini_set('include_path', dirname($_SERVER['SCRIPT_FILENAME']));
 
 $dbconf= include("conf/db.php");
 require_once('conf/app.php');

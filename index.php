@@ -1,5 +1,14 @@
 <?php require_once('inc/boot.php') ?>
 <?php
+$server= isset($_GET['server']) ? urldecode($_GET['server']) : false;
+if($server) {
+	foreach($sites as $i => $site) {
+		if($site['server'] !== $server) {
+			unset($sites[$i]);
+		}
+	}
+}
+
 $alerts= query_db_assoc("select * from `alert` order by `created_at` desc limit 10", null, false, false);
 $latest_errors= query_db_assoc("select * from `code` where `code` != 200 order by `created_at` desc limit 10");
 $slow_responses= query_db_assoc("select * from `benchmark` where `median` > 1000 order by `created_at` desc limit 10");
@@ -53,6 +62,7 @@ $validation_errors= query_db_assoc("select * from `validation` where `found` > 0
 <thead>
 <tr>
 	<th>Site</th>
+	<th>Server</th>
 	<th>Domain</th>
 	<th>Error codes</th>
 	<th>Validation errors</th>
@@ -69,6 +79,7 @@ $validation_errors= query_db_assoc("select * from `validation` where `found` > 0
 <?php foreach($sites as $site): ?>
 <tr>
 	<td><a href="/site/<?= $site['code'] ?>"><?= $site['code'] ?></a></td>
+	<td><a href="/server/<?= $site['server'] ?>"><?= $site['server'] ?></a></td>
 	<td><a class="external" href="http://<?= $site['domain'] ?>"><?= $site['domain'] ?></a></td>
 	<td><?= intval($site['code_errors']) === 0 ? '' : intval($site['code_errors']) ?></td>
 	<td><?= $site['validation_errors'] ?></td>

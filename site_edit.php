@@ -32,6 +32,13 @@ if($site !== 'new') {
 <form action="/site_save" method="post">
 	<fieldset>
 		<div class="control-group">
+			<label class="control-label">Server</label>
+			<div class="controls">
+				<input type="text" name="server" value="<?php if($site): ?><?= $site['server'] ?><?php endif; ?>">
+			</div>
+		</div>
+		
+		<div class="control-group">
 			<label class="control-label">Code</label>
 			<div class="controls">
 				<input type="text" name="code" value="<?php if($site): ?><?= $site['code'] ?><?php endif; ?>">

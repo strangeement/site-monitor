@@ -23,26 +23,36 @@ function benchmark($url) {
 function benchmarks($timeframe='1h', $site=null) {
 	global $sites;
 	
-	$from= 60*60;
-	if(preg_match('/^\d+$/', $timeframe)) {
-		$from= intval($timeframe)*60;
-	} else if(preg_match('/(\d+)(\w)/i', $timeframe, $timeframe_match)) {
-		$value= $timeframe_match[1];
-		$unit= $timeframe_match[2];
-		if($unit === 'm') {
-			$from= $value * 60;
-		} else if($unit === 'h') {
-			$from= $value * 60 * 60;
-		} else if($unit === 'd') {
-			$from= $value * 60 * 60 * 24;
-		} else if($unit === 'w') {
-			$from= $value * 60 * 60 * 24 * 7;
-		} else if($unit === 'm') {
-			$from= $value * 60 * 60 * 24 * 30;
+	if(is_array($timeframe)) {
+		$from= isset($timeframe['from']) && !empty($timeframe['from']) ? $timeframe['from'] : null;
+		$to= isset($timeframe['to']) && !empty($timeframe['to']) ? $timeframe['to'] : null;
+		
+		$sql= "select * from `benchmark` where " . ($site ? "`site`=:site and" : '') .
+			($from ? " `created_at`>UNIX_TIMESTAMP('{$from}')" : '') .
+			($to ? (($from ? ' and' : '' ) . " `created_at` <UNIX_TIMESTAMP('{$to}')") : '') .
+			" order by `created_at` desc";
+	} else {
+		$from= 60*60;
+		if(preg_match('/^\d+$/', $timeframe)) {
+			$from= intval($timeframe)*60;
+		} else if(preg_match('/(\d+)(\w)/i', $timeframe, $timeframe_match)) {
+			$value= $timeframe_match[1];
+			$unit= $timeframe_match[2];
+			if($unit === 'm') {
+				$from= $value * 60;
+			} else if($unit === 'h') {
+				$from= $value * 60 * 60;
+			} else if($unit === 'd') {
+				$from= $value * 60 * 60 * 24;
+			} else if($unit === 'w') {
+				$from= $value * 60 * 60 * 24 * 7;
+			} else if($unit === 'm') {
+				$from= $value * 60 * 60 * 24 * 30;
+			}
 		}
+		
+		$sql= "select * from `benchmark` where " . ($site ? "`site`=:site and" : '') . " `created_at` > unix_timestamp()-{$from} order by `created_at` desc";
 	}
-	
-	$sql= "select * from `benchmark` where " . ($site ? "`site`=:site and" : '') . " `created_at` > unix_timestamp()-{$from} order by `created_at` desc";
 	
 	if($site) {
 		$benchmarks= query_db_assoc($sql, array('site' => $site));
@@ -53,12 +63,14 @@ function benchmarks($timeframe='1h', $site=null) {
 	
 	$timekeys= array();
 	
+	$timeframe= is_array($timeframe) ? ($to ? strtotime($to) : time()) - ($from ? strtotime($from) : 0) : $timeframe;
+	
 	$time_resolution= 'Y-m-d H:i';
-	if($from >= 60*60*24) {
+	if($timeframe > 60*60*5) {
 		$time_resolution= 'Y-m-d H';
 	}
 	
-	if($from >= 60*60*24*7) {
+	if($timeframe > 60*60*24*5) {
 		$time_resolution= 'Y-m-d';
 	}
 	
@@ -129,18 +141,18 @@ function checkInstall() {
 	}
 }
 
-function compressBenchmarks() {
+function compressBenchmarks($interval=300, $after=3600) {
 	global $sites;
 	
 	foreach($sites as $site) {
-		compressSiteBenchmarks($site, 300);
+		compressSiteBenchmarks($site, 300, $after);
 	}
 }
 
-function compressSiteBenchmarks($site, $interval) {
-	$benchmarks= query_db_assoc("select `benchmark`.*, round(`created_at`/{$interval}) as `interval` from `benchmark` where `site`=:site and unix_timestamp()-`created_at` > 60*60 order by `interval`", array('site' => $site['code']));
+function compressSiteBenchmarks($site, $interval=300, $after=3600) {
+	$benchmarks= query_db_assoc("select `benchmark`.*, round(`created_at`/{$interval}) as `interval` from `benchmark` where `site`=:site and unix_timestamp()-`created_at` > {$after} order by `interval`", array('site' => $site['code']));
 	
-	debug("Compressing " . count($benchmarks) . " benchmarks for {$site['domain']}");
+	debug("Compressing " . count($benchmarks) . " benchmarks for {$site['domain']} with interval={$interval}s and after={$after}s");
 	
 	$n= count($benchmarks);
 	

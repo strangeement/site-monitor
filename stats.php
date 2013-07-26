@@ -1,7 +1,10 @@
 <?php require_once('inc/boot.php') ?>
 <?php
+$server= isset($_GET['server']) ? urldecode($_GET['server']) : false;
 $timeframe= isset($_GET['timeframe']) && !empty($_GET['timeframe']) ? urldecode($_GET['timeframe']) : 15;
-$benchmarks= benchmarks($timeframe);
+$from= isset($_GET['from']) && !empty($_GET['from']) ? urldecode($_GET['from']) : null;
+$to= isset($_GET['to']) && !empty($_GET['to']) ? urldecode($_GET['to']) : null;
+$benchmarks= benchmarks($from || $to ? array('from' => $from, 'to' => $to) : $timeframe);
 $uri= '/stats';
 ?>
 <?php include('tpl/header.php'); ?>

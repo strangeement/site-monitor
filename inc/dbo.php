@@ -135,9 +135,10 @@ function insertResponseCode($site, $url, $code) {
 	));
 }
 
-function insertSite($code, $domain, $alert_threshold, $ssl, $urls) {
-	$sql= "insert into `site` (`code`, `domain`, `alert_threshold`, `ssl`, `urls`) values (:code, :domain, :alert_threshold, :ssl, :urls)";
+function insertSite($server, $code, $domain, $alert_threshold, $ssl, $urls) {
+	$sql= "insert into `site` (`server`, `code`, `domain`, `alert_threshold`, `ssl`, `urls`) values (:server, :code, :domain, :alert_threshold, :ssl, :urls)";
 	return query_db($sql, array(
+		'server' => $server,
 		'code' => $code,
 		'domain' => $domain,
 		'alert_threshold' => $alert_threshold,
@@ -156,9 +157,10 @@ function insertValidationErrors($site, $url, $found, $error) {
 	));
 }
 
-function updateSite($id, $code, $domain, $alert_threshold, $ssl, $urls) {
-	$sql= "update `site` set `code`=:code, `domain`=:domain, `alert_threshold`=:alert_threshold, `ssl`=:ssl, `urls`=:urls where `id`=:id";
+function updateSite($id, $server, $code, $domain, $alert_threshold, $ssl, $urls) {
+	$sql= "update `site` set `server`=:server, `code`=:code, `domain`=:domain, `alert_threshold`=:alert_threshold, `ssl`=:ssl, `urls`=:urls where `id`=:id";
 	return query_db($sql, array(
+		'server' => $server,
 		'code' => $code,
 		'domain' => $domain,
 		'alert_threshold' => $alert_threshold,
